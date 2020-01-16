@@ -3,25 +3,17 @@
 // found in the LICENSE file.
 
 import 'dart:async';
-import 'package:flutter_clock_helper/model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/semantics.dart';
 import 'package:intl/intl.dart';
 import 'package:vector_math/vector_math_64.dart' show radians;
-
-import 'container_hand.dart';
 import 'drawn_hand.dart';
+import 'flutter_clock_helper/lib/model.dart';
 
-/// Total distance traveled by a second or a minute hand, each second or minute,
-/// respectively.
 final radiansPerTick = radians(360 / 60);
 
-/// Total distance traveled by an hour hand, each hour, in radians.
 final radiansPerHour = radians(360 / 12);
 
-/// A basic analog clock.
-///
-/// You can do better than this!
 class AnalogClock extends StatefulWidget {
   const AnalogClock(this.model);
 
@@ -39,6 +31,7 @@ class _AnalogClockState extends State<AnalogClock>
   @override
   void initState() {
     super.initState();
+    _updateTime();
   }
 
   @override
@@ -56,8 +49,7 @@ class _AnalogClockState extends State<AnalogClock>
   void _updateTime() {
     setState(() {
       _now = DateTime.now();
-      // Update once per second. Make sure to do it at the beginning of each
-      // new second, so that the clock is accurate.
+
       _timer = Timer(
         Duration(seconds: 1) - Duration(milliseconds: _now.millisecond),
         _updateTime,
@@ -75,12 +67,17 @@ class _AnalogClockState extends State<AnalogClock>
             highlightColor: Color(0xFF000521),
             // Second hand.
             accentColor: Color(0xFFFF0000),
+            // Background color.
             backgroundColor: Color(0xFFFFFFFF),
           )
         : Theme.of(context).copyWith(
+            // Hour hand.
             primaryColor: Color(0xFFFFFFFF),
+            // Minute hand.
             highlightColor: Color(0xFFFFFFFF),
+            // Second hand.
             accentColor: Color(0xFFFF0000),
+            // Background color.
             backgroundColor: Color(0xFF000521),
           );
 
@@ -94,21 +91,20 @@ class _AnalogClockState extends State<AnalogClock>
       'FRIDAY',
       'SATURDAY',
     ];
-    List<String> months = [
-      '',
-      'JAN',
-      'FEB',
-      'MAR',
-      'APR',
-      'MAY',
-      'JUN',
-      'JUL',
-      'AUG',
-      'OCT',
-      'SEP',
-      'NOV',
-      'DEC'
-    ];
+    Map<int, String> months = {
+      1: 'JAN',
+      2: 'FEB',
+      3: 'MAR',
+      4: 'APR',
+      5: 'MAY',
+      6: 'JUN',
+      7: 'JUL',
+      8: 'AUG',
+      9: 'SEP',
+      10: 'OCT',
+      11: 'NOV',
+      12: 'DEC'
+    };
 
     return Semantics.fromProperties(
       properties: SemanticsProperties(
@@ -117,42 +113,20 @@ class _AnalogClockState extends State<AnalogClock>
       ),
       child: Container(
         decoration: BoxDecoration(
-          /*border: Border.all(
+          border: Border.all(
             color: customTheme.primaryColor,
-            width: 15,
-          ),*/
+            width: 10,
+          ),
           color: customTheme.backgroundColor,
         ),
         child: Stack(
           children: [
-            // Example of a hand drawn with [CustomPainter].
             Align(
               alignment: Alignment.center,
               child: Container(
                 alignment: Alignment.center,
                 decoration: BoxDecoration(
-                  color: customTheme.backgroundColor,
-                  boxShadow: [
-                    BoxShadow(
-                        color: customTheme.primaryColor.withOpacity(0.1),
-                        offset: Offset(3, 3),
-                        spreadRadius: 0.0,
-                        blurRadius: 4.0)
-                  ],
-                  borderRadius: BorderRadius.circular(
-                    200,
-                  ),
-                ),
-                width: 230,
-                height: 230,
-              ),
-            ),
-            Align(
-              alignment: Alignment.center,
-              child: Container(
-                alignment: Alignment.center,
-                decoration: BoxDecoration(
-                  color: customTheme.accentColor.withOpacity(0.03),
+                  color: customTheme.accentColor.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(
                     200,
                   ),
@@ -161,40 +135,33 @@ class _AnalogClockState extends State<AnalogClock>
                 height: 50,
               ),
             ),
+            //Seconds hand.
             DrawnHand(
               color: customTheme.accentColor,
               thickness: 1,
               size: 0.8,
               angleRadians: _now.second * radiansPerTick,
             ),
+            //Mins hand.
             DrawnHand(
               color: customTheme.highlightColor,
               thickness: 2,
-              size: 0.7,
+              size: 0.72,
               angleRadians: _now.minute * radiansPerTick,
             ),
-            // Example of a hand drawn with [Container].
-            ContainerHand(
-              color: Colors.transparent,
+            //Hours hand.
+            DrawnHand(
+              color: customTheme.highlightColor,
+              thickness: 4,
               size: 0.5,
               angleRadians: _now.hour * radiansPerHour +
                   (_now.minute / 60) * radiansPerHour,
-              child: Transform.translate(
-                offset: Offset(0.0, -70.0),
-                child: Container(
-                  width: 6,
-                  height: 140,
-                  decoration: BoxDecoration(
-                    color: customTheme.primaryColor,
-                  ),
-                ),
-              ),
             ),
 
             Align(
               alignment: Alignment.bottomCenter,
               child: Container(
-                margin: EdgeInsets.only(bottom: 35),
+                margin: EdgeInsets.only(bottom: 10),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.end,
